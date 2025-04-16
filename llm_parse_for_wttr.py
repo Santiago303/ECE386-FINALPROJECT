@@ -1,15 +1,55 @@
 """This script evaluates an LLM prompt for processing text so that it can be used for the wttr.in API"""
 
-from ollama import Client
+# First, ensure the ollama package is installed
+try:
+    from ollama import Client
+except ImportError:
+    print("Error: The 'ollama' package is not installed.")
+    print("Please install it using: pip install ollama")
+    exit(1)
 
-LLM_MODEL: str = "gemma3:1b"    # Using gemma3:1b model from Ollama
+# Set the model to gemma3:27b
+LLM_MODEL: str = "gemma3:27b"    # Using the 27B parameter version of Gemma
+
+# Initialize the Ollama client
 client: Client = Client(
-  host='http://localhost:11434' # Default Ollama host
+  host='http://10.1.69.214:11434' # Default Ollama host - update if needed
 )
+
+# Verify connection and model availability
+try:
+    # Simple test to check connection and model availability
+    response = client.generate(
+        model=LLM_MODEL,
+        prompt="Test connection",
+        options={"temperature": 0.1}
+    )
+    print(f"✅ Successfully connected to Ollama server and accessed {LLM_MODEL}")
+except Exception as e:
+    print(f"❌ Error connecting to Ollama or accessing {LLM_MODEL}: {e}")
+    print("Please check that:")
+    print("1. The Ollama server is running")
+    print("2. The model 'gemma3:27b' is available on your server")
+    print(f"   You may need to run: ollama pull {LLM_MODEL}")
+    print("3. The server URL is correct")
+    exit(1)
+
+def format_for_wttr(location: str) -> str:
+    """
+    Format a location string for wttr.in by replacing spaces with plus signs.
+    
+    Args:
+        location: The extracted location string
+        
+    Returns:
+        Properly formatted location for wttr.in URL
+    """
+    # Replace spaces with plus signs
+    return location.replace(" ", "+")
 
 def llm_parse_for_wttr(input_text: str) -> str:
     """
-    Parse natural language weather queries into wttr.in compatible format using Ollama.
+    Parse natural language weather queries into wttr.in compatible format.
     
     Args:
         input_text: Natural language query about weather
@@ -17,7 +57,7 @@ def llm_parse_for_wttr(input_text: str) -> str:
     Returns:
         String formatted for wttr.in API
     """
-    # Structured prompt optimized for smaller models like gemma3:1b
+    # Clear, specific prompt with examples for better results
     prompt = f"""
     Convert this weather query to a wttr.in compatible format.
     
@@ -66,22 +106,38 @@ def llm_parse_for_wttr(input_text: str) -> str:
     for prefix in prefixes_to_remove:
         if result.startswith(prefix):
             result = result[len(prefix):].strip()
+   
+    # Format the result for wttr.in by replacing spaces with plus signs
+    # But only do this for location names, not for special formats like /moon
+    if not result.startswith("/"):
+        result = format_for_wttr(result)
     
     return result
 
-# Test cases specifically for wttr.in formatting
+# Test cases for wttr.in formatting
 test_cases = [
     {
         "input": "What's the weather like in New York?",
-        "expected": "New York"
+        "expected": "New+York"
+    },
+    {
+        "input": "What's the weather in Colorado Springs?",
+        "expected": "Colorado+Springs"
     },
     {
         "input": "Tell me the weather forecast for London, UK",
         "expected": "London,UK"
     },
     {
+        "input": "Tell me the weather at Vostok Station",
+        "expected": "Vostok+Station"
+    },
+    {
         "input": "Check weather at JFK airport",
         "expected": "~KJFK"
+    },
+    {   "input":"Check weather at Fort Lauderdale Airport",
+        "expected": "~KFLL"
     },
     {
         "input": "What's the weather like at Google's headquarters?",
