@@ -121,6 +121,10 @@ test_cases = [
         "expected": "New+York"
     },
     {
+        "input": "What's the weather like at USAFA?",
+        "expected": "~USAFA"
+    },
+    {
         "input": "What's the weather in Colorado Springs?",
         "expected": "Colorado+Springs"
     },
@@ -133,12 +137,19 @@ test_cases = [
         "expected": "Vostok+Station"
     },
     {
+        "input": "What is the weather at the Effiel Tower",
+        "expected": "Paris"
+    },
+    {   "input":"What is the weather in Kilimanjaro",
+        "expected": "Kilimanjaro"
+    },
+    {
         "input": "Check weather at JFK airport",
         "expected": "~KJFK"
     },
     {   "input":"Check weather at Fort Lauderdale Airport",
         "expected": "~KFLL"
-    },
+    }, 
     {
         "input": "What's the weather like at Google's headquarters?",
         "expected": "@google.com"
