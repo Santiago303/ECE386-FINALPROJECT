@@ -19,7 +19,7 @@ This application allows you to:
   #Activate the virtual environment
   source venv/bin/activate
 3.Install dependencies
-  #Install required system packages
+#Install required system packages
   sudo apt-get update
   sudo apt-get install -y python3-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg
 4.Run the application
