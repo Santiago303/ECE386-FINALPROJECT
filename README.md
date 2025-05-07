@@ -14,7 +14,7 @@ This application allows you to:
 ## HOW TO USE
 1. Clone Repo
 2. Set up virtual enviorment
-   # Create a virtual environment
+  # Create a virtual environment
   python3 -m venv venv
   # Activate the virtual environment
   source venv/bin/activate
