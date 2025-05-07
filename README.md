@@ -14,12 +14,12 @@ This application allows you to:
 ## HOW TO USE
 1. Clone Repo
 2. Set up virtual enviorment
-  # Create a virtual environment
+  #Create a virtual environment
   python3 -m venv venv
-  # Activate the virtual environment
+  #Activate the virtual environment
   source venv/bin/activate
 3.Install dependencies
-  # Install required system packages
+  #Install required system packages
   sudo apt-get update
   sudo apt-get install -y python3-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg
 4.Run the application
