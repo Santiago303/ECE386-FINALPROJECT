@@ -25,7 +25,7 @@ llm_parse = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(llm_parse)
 
 # Ollama server URL and model
-OLLAMA_URL = "http://10.1.69.214:11434"
+OLLAMA_URL = "http://10.1.69.213:11434"
 OLLAMA_MODEL = "gemma3:27b"  # Using gemma3:27b model
 
 # Flag to control recording
@@ -76,7 +76,8 @@ def record_and_process():
         # Process with LLM
         ollama_request = {
             "model": OLLAMA_MODEL,
-            "prompt": transcription
+            "prompt": transcription,
+            "stream": False  # Disable streaming for simpler response handling
         }
         
         # Send request to Ollama
@@ -84,13 +85,19 @@ def record_and_process():
         response = requests.post(f"{OLLAMA_URL}/api/generate", json=ollama_request)
         response.raise_for_status()
         
-        # Extract the response
-        llm_response = response.json().get("response", "")
+        # Extract the response used for testing
+        response_json = response.json()
+        llm_response = response_json.get("response", "")
         print(f"LLM Response: {llm_response}")
         
         # Use the llm_parse module to extract weather query
-        weather_query = llm_parse.parse_for_wttr(llm_response)
+        print("Parsing response for weather query...")
+        weather_query = llm_parse.parse_for_wttr(transcription)  # Use transcription directly
         print(f"Parsed weather query: {weather_query}")
+        
+        if not weather_query:
+            print("No location found in the query. Using default location.")
+            weather_query = "Miami"  # Default location
         
         # Call wttr.in API
         wttr_url = f"https://wttr.in/{weather_query}?format=j1"
@@ -106,8 +113,16 @@ def record_and_process():
         print(formatted_result)
         print("="*50 + "\n")
         
+    except requests.exceptions.JSONDecodeError as e:
+        print(f"JSON parsing error: {str(e)}")
+        print("Response content:", response.text[:200] + "..." if len(response.text) > 200 else response.text)
+        print("Try adjusting the Ollama request format or checking the server response.")
+    except requests.exceptions.RequestException as e:
+        print(f"Request error when communicating with Ollama or wttr.in: {str(e)}")
     except Exception as e:
         print(f"Error in recording and processing: {str(e)}")
+        import traceback
+        traceback.print_exc()  # Print the full traceback for debugging
     finally:
         is_recording = False
         print("Ready for next recording.")
