@@ -13,7 +13,7 @@ LLM_MODEL: str = "gemma3:27b"    # Using the 27B parameter version of Gemma
 
 # Initialize the Ollama client
 client: Client = Client(
-  host='http://10.1.69.214:11434' # Default Ollama host - update if needed
+  host='http://10.1.69.213:11434' # Default Ollama host - update if needed
 )
 
 # Verify connection and model availability
@@ -47,7 +47,7 @@ def format_for_wttr(location: str) -> str:
     # Replace spaces with plus signs
     return location.replace(" ", "+")
 
-def llm_parse_for_wttr(input_text: str) -> str:
+def parse_for_wttr(input_text: str) -> str:
     """
     Parse natural language weather queries into wttr.in compatible format.
     
